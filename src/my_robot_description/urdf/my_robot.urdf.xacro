@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<robot name="my_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- 包含其他组件 -->
+  <xacro:include filename="common_properties.xacro" />
+  <xacro:include filename="arm.xacro" />
+  <xacro:include filename="gripper.xacro"/>
+  <xacro:include filename="rgbd_camera.xacro" />
+  <xacro:include filename="my_robot.ros2_control.xacro" />
+
+  <!-- 1. 基础连接：将来自 arm.xacro 的 base_link 固定到世界 -->
+  <link name="world"/>
+  <joint name="world_joint" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- 2. 手部连接：将来自 gripper.xacro 的 gripper_base_link 连到臂末端 -->
+  <joint name="gripper_base_joint" type="fixed">
+      <parent link="tool_link" />
+      <child link="gripper_base_link" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+
+  <!-- 3. RGB-D camera: rigidly mounted to base_link with configurable offset -->
+  <xacro:rgbd_camera
+      parent_link="base_link"
+      camera_name="camera_link"
+      xyz="1.25 0.00 1.25"
+      rpy="0 0.9599 3.1416" />
+
+  <!-- 4. Gazebo 插件 -->
+  <gazebo>
+    <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+      <!-- 这里的路径必须指向你的配置文件 -->
+      <parameters>$(find my_robot_bringup)/config/ros2_controllers.yaml</parameters>
+    </plugin>
+  </gazebo>
+
+    <!-- 防止夹取时方块飞出 -->
+  <gazebo reference="gripper_left_finger_link">
+    <mu1>100.0</mu1>
+    <mu2>100.0</mu2>
+    <kp>1000000.0</kp>
+    <kd>100.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>0.01</maxVel>
+  </gazebo>
+  <gazebo reference="gripper_right_finger_link">
+    <mu1>100.0</mu1>
+    <mu2>100.0</mu2>
+    <kp>1000000.0</kp>
+    <kd>100.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>0.01</maxVel>
+  </gazebo>
+    
+</robot>

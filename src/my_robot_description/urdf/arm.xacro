@@ -1,0 +1,229 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="arm_robot">
+
+    <!-- ================= 1. Base Link (底座) ================= -->
+    <link name="base_link">
+        <visual>
+            <geometry><box size="0.4 0.4 0.1" /></geometry>
+            <origin xyz="0 0 0.05" rpy="0 0 0" />
+            <material name="grey" />
+        </visual>
+        <collision>
+            <geometry><box size="0.4 0.4 0.1" /></geometry>
+            <origin xyz="0 0 0.05" rpy="0 0 0" />
+        </collision>
+        <inertial>
+            <mass value="2.0" />
+            <origin xyz="0 0 0.05" />
+            <inertia ixx="0.028333" ixy="0" ixz="0" iyy="0.028333" iyz="0" izz="0.053333" />
+        </inertial>
+    </link>
+    <gazebo reference="base_link">
+        <material>Gazebo/Grey</material>
+    </gazebo>
+
+    <!-- ================= 2. Shoulder Link (肩部) ================= -->
+    <link name="shoulder_link">
+        <visual>
+            <geometry><cylinder radius="0.1" length="0.5"/></geometry>
+            <origin xyz="0 0 0.25" rpy="0 0 0" />
+            <material name="blue" />
+        </visual>
+        <collision>
+            <geometry><cylinder radius="0.1" length="0.5"/></geometry>
+            <origin xyz="0 0 0.25" rpy="0 0 0" />
+        </collision>
+        <inertial>
+            <mass value="1.0" />
+            <origin xyz="0 0 0.25" />
+            <inertia ixx="0.023333" ixy="0" ixz="0" iyy="0.023333" iyz="0" izz="0.005" />
+        </inertial>
+    </link>
+    <gazebo reference="shoulder_link">
+        <material>Gazebo/Blue</material>
+    </gazebo>
+
+    <!-- ================= 3. Arm Link (大臂) ================= -->
+    <link name="arm_link">
+        <visual>
+            <geometry><cylinder radius="0.05" length="0.6" /></geometry>
+            <origin xyz="0 0 0.3" rpy="0 0 0" />
+            <material name="grey" />
+        </visual>
+        <collision>
+            <geometry><cylinder radius="0.05" length="0.6" /></geometry>
+            <origin xyz="0 0 0.3" rpy="0 0 0" />
+        </collision>
+        <inertial>
+            <mass value="0.8" />
+            <origin xyz="0 0 0.3" />
+            <inertia ixx="0.0245" ixy="0" ixz="0" iyy="0.0245" iyz="0" izz="0.001" />
+        </inertial>
+    </link>
+    <gazebo reference="arm_link">
+        <material>Gazebo/Grey</material>
+    </gazebo>
+
+    <!-- ================= 4. Elbow Link (弯肘关节) ================= -->
+    <link name="elbow_link">
+        <visual>
+            <geometry><cylinder radius="0.05" length="0.1" /></geometry>
+            <origin xyz="0 0 0.05" rpy="0 0 0" />
+            <material name="blue" />
+        </visual>
+        <collision>
+            <geometry><cylinder radius="0.05" length="0.1" /></geometry>
+            <origin xyz="0 0 0.05" rpy="0 0 0" />
+        </collision>
+        <inertial>
+            <mass value="0.2" />
+            <origin xyz="0 0 0.05" />
+            <inertia ixx="0.000291" ixy="0" ixz="0" iyy="0.000291" iyz="0" izz="0.00025" />
+        </inertial>
+    </link>
+    <gazebo reference="elbow_link">
+        <material>Gazebo/Blue</material>
+    </gazebo>
+
+    <!-- ================= 5. Forearm Link (小臂) ================= -->
+    <link name="forearm_link">
+        <visual>
+            <geometry><cylinder radius="0.05" length="0.5" /></geometry>
+            <origin xyz="0 0 0.25" rpy="0 0 0" />
+            <material name="grey" />
+        </visual>
+        <collision>
+            <geometry><cylinder radius="0.05" length="0.5" /></geometry>
+            <origin xyz="0 0 0.25" rpy="0 0 0" />
+        </collision>
+        <inertial>
+            <mass value="0.6" />
+            <origin xyz="0 0 0.25" />
+            <inertia ixx="0.012875" ixy="0" ixz="0" iyy="0.012875" iyz="0" izz="0.00075" />
+        </inertial>
+    </link>
+    <gazebo reference="forearm_link">
+        <material>Gazebo/Grey</material>
+    </gazebo>
+
+    <!-- ================= 6. Wrist Link (手腕) ================= -->
+    <link name="wrist_link">
+        <visual>
+            <geometry><box size="0.1 0.1 0.05" /></geometry>
+            <origin xyz="0 0 0.025" rpy="0 0 0" />
+            <material name="blue" />
+        </visual>
+        <collision>
+            <geometry><box size="0.1 0.1 0.05" /></geometry>
+            <origin xyz="0 0 0.025" rpy="0 0 0" />
+        </collision>
+        <inertial>
+            <mass value="0.2" />
+            <origin xyz="0 0 0.025" />
+            <inertia ixx="0.000208" ixy="0" ixz="0" iyy="0.000208" iyz="0" izz="0.000333" />
+        </inertial>
+    </link>
+    <gazebo reference="wrist_link">
+        <material>Gazebo/Blue</material>
+    </gazebo>
+
+    <!-- ================= 7. Hand Link (末端) ================= -->
+    <link name="hand_link">
+        <visual>
+            <geometry><box size="0.1 0.1 0.02" /></geometry>
+            <origin xyz="0 0 0.01" rpy="0 0 0" />
+            <material name="grey" />
+        </visual>
+        <collision>
+            <geometry><box size="0.1 0.1 0.02" /></geometry>
+            <origin xyz="0 0 0.01" rpy="0 0 0" />
+        </collision>
+        <inertial>
+            <mass value="0.1" />
+            <origin xyz="0 0 0.01" />
+            <inertia ixx="0.000086" ixy="0" ixz="0" iyy="0.000086" iyz="0" izz="0.000166" />
+        </inertial>
+    </link>
+    <gazebo reference="hand_link">
+        <material>Gazebo/Grey</material>
+    </gazebo>
+
+    <link name="tool_link" />
+    <link name="attach_link">
+        <visual>
+            <geometry><sphere radius="0.005" /></geometry>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <material name="blue" />
+        </visual>
+        <inertial>
+            <mass value="0.001" />
+            <origin xyz="0 0 0" />
+            <inertia ixx="0.000001" ixy="0" ixz="0" iyy="0.000001" iyz="0" izz="0.000001" />
+        </inertial>
+    </link>
+
+    <!-- ================= JOINTS (关节) ================= -->
+    <joint name="joint1" type="revolute">
+        <parent link="base_link" />
+        <child link="shoulder_link" />
+        <origin xyz="0 0 0.1" rpy="0 0 0" />
+        <axis xyz="0 0 1" />
+        <limit lower="-3.14" upper="3.14" effort="1000.0" velocity="1.0"/>
+    </joint>
+
+    <joint name="joint2" type="revolute">
+        <parent link="shoulder_link" />
+        <child link="arm_link" />
+        <origin xyz="0 0 0.5" rpy="0 0 0" />
+        <axis xyz="0 1 0" />
+        <limit lower="0" upper="2.5" effort="1000.0" velocity="1.0"/>
+    </joint>
+
+    <joint name="joint3" type="revolute">
+        <parent link="arm_link" />
+        <child link="elbow_link" />
+        <origin xyz="0 0 0.6" rpy="0 0 0" />
+        <axis xyz="0 1 0" />
+        <limit lower="0" upper="2.5" effort="1000.0" velocity="1.0"/>
+    </joint>
+
+    <joint name="joint4" type="revolute">
+        <parent link="elbow_link" />
+        <child link="forearm_link" />
+        <origin xyz="0 0 0.1" rpy="0 0 0" />
+        <axis xyz="0 0 1" />
+        <limit lower="-3.14" upper="3.14" effort="1000.0" velocity="1.0"/>
+    </joint>
+
+    <joint name="joint5" type="revolute">
+        <parent link="forearm_link" />
+        <child link="wrist_link" />
+        <origin xyz="0 0 0.5" rpy="0 0 0" />
+        <axis xyz="0 1 0" />
+        <limit lower="-1.57" upper="1.57" effort="1000.0" velocity="1.0"/>
+    </joint>
+
+    <joint name="joint6" type="continuous">
+        <parent link="wrist_link" />
+        <child link="hand_link" />
+        <origin xyz="0 0 0.05" rpy="0 0 0" />
+        <axis xyz="0 0 1" />
+    </joint>
+
+    <joint name="hand_tool_joint" type="fixed">
+        <parent link="hand_link" />
+        <child link="tool_link" />
+        <origin xyz="0 0 0.02" rpy="0 0 0" />
+    </joint>
+
+    <joint name="hand_attach_joint" type="fixed">
+        <parent link="hand_link" />
+        <child link="attach_link" />
+        <origin xyz="0 0 0.10" rpy="0 0 0" />
+    </joint>
+
+    <gazebo reference="hand_attach_joint">
+        <preserveFixedJoint>true</preserveFixedJoint>
+    </gazebo>
+
+</robot>

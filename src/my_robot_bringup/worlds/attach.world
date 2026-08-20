@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <world name="default">
+    <!-- 原有的模型连接插件 -->
+    <plugin name="model_attachment_plugin" filename="libgazebo_model_attachment_plugin_lib.so"/>
+
+    <!-- 新增的State Publisher插件 -->
+    <plugin name="gazebo_ros_state" filename="libgazebo_ros_state.so">
+      <model_states_topic_name>/gazebo/model_states</model_states_topic_name>
+      <link_states_topic_name>/gazebo/link_states</link_states_topic_name>
+      <ros>
+        <namespace>/gazebo</namespace>
+      </ros>
+    </plugin>
+
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <include>
+      <uri>model://sun</uri>
+    </include>
+  </world>
+</sdf>

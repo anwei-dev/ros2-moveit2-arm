@@ -1,0 +1,44 @@
+# Python
+.Python
+__pycache__/
+*.pyc
+
+# CMake
+cmake-build-*/
+build/
+install/
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Compiled files
+*.o
+*.obj
+*.exe
+*.dll
+*.dylib
+*.so
+
+# ROS2 specific
+log/
+*.bag
+*.db3
+
+# ROS2
+log/
+*.bag
+*.db3
+install/
+build/

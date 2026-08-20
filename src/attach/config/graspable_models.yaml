@@ -1,0 +1,4 @@
+# config/models.yaml
+/**: # 全局命名空间
+  ros__parameters:
+    candidate_models: ["red_cube", "grasp_cube", "blue_cube", "blue_cube_q4_b", "blue_cube_q4_a"]
