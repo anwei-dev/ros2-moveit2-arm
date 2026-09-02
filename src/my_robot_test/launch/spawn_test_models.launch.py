@@ -1,4 +1,5 @@
 # 用于加载测试模型
+# 添加可被抓取的模型需要在 /attach/config/graspable_models.yanml 中添加模型名称
 import os
 
 from ament_index_python.packages import get_package_share_directory

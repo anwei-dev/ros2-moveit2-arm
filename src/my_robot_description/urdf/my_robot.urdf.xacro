@@ -37,23 +37,5 @@
       <parameters>$(find my_robot_bringup)/config/ros2_controllers.yaml</parameters>
     </plugin>
   </gazebo>
-
-    <!-- 防止夹取时方块飞出 -->
-  <gazebo reference="gripper_left_finger_link">
-    <mu1>100.0</mu1>
-    <mu2>100.0</mu2>
-    <kp>1000000.0</kp>
-    <kd>100.0</kd>
-    <minDepth>0.001</minDepth>
-    <maxVel>0.01</maxVel>
-  </gazebo>
-  <gazebo reference="gripper_right_finger_link">
-    <mu1>100.0</mu1>
-    <mu2>100.0</mu2>
-    <kp>1000000.0</kp>
-    <kd>100.0</kd>
-    <minDepth>0.001</minDepth>
-    <maxVel>0.01</maxVel>
-  </gazebo>
     
 </robot>

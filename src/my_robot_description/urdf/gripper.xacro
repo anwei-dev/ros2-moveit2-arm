@@ -52,6 +52,38 @@
         </inertial>
     </link>
 
+    <!-- attach_link -->
+    <link name="attach_link">
+    <visual>
+        <geometry><sphere radius="0.005" /></geometry>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <material name="blue" />
+    </visual>
+    <inertial>
+        <mass value="0.001" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="0.000001" ixy="0" ixz="0" iyy="0.000001" iyz="0" izz="0.000001" />
+    </inertial>
+    </link>
+
+    <!-- finger属性 -->
+    <gazebo reference="gripper_left_finger_link">
+        <mu1>10.0</mu1>
+        <mu2>10.0</mu2>
+        <kp>100000.0</kp>
+        <kd>100.0</kd>
+        <minDepth>0.001</minDepth>
+        <maxVel>0.01</maxVel>
+    </gazebo>
+    <gazebo reference="gripper_right_finger_link">
+        <mu1>10.0</mu1>
+        <mu2>10.0</mu2>
+        <kp>100000.0</kp>
+        <kd>100.0</kd>
+        <minDepth>0.001</minDepth>
+        <maxVel>0.01</maxVel>
+    </gazebo>
+
     <!-- 4. 关节定义 (现在是两个互相独立的平移关节) -->
     <joint name="gripper_left_finger_joint" type="prismatic">
         <parent link="gripper_base_link" />
@@ -70,6 +102,16 @@
         <limit effort="40.0" velocity="0.05" lower="-0.04" upper="0.0" />
         <dynamics damping="20.0" friction="2.0" />
     </joint>
+
+    <joint name="gripper_attach_joint" type="fixed">
+        <parent link="gripper_base_link" />
+        <child link="attach_link" />
+        <origin xyz="0 0 0.02" rpy="0 0 0" />
+    </joint>
+
+    <gazebo reference="gripper_attach_joint">
+        <preserveFixedJoint>true</preserveFixedJoint>
+    </gazebo>
 
 
 </robot>

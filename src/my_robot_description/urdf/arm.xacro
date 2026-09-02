@@ -149,18 +149,6 @@
     </gazebo>
 
     <link name="tool_link" />
-    <link name="attach_link">
-        <visual>
-            <geometry><sphere radius="0.005" /></geometry>
-            <origin xyz="0 0 0" rpy="0 0 0" />
-            <material name="blue" />
-        </visual>
-        <inertial>
-            <mass value="0.001" />
-            <origin xyz="0 0 0" />
-            <inertia ixx="0.000001" ixy="0" ixz="0" iyy="0.000001" iyz="0" izz="0.000001" />
-        </inertial>
-    </link>
 
     <!-- ================= JOINTS (关节) ================= -->
     <joint name="joint1" type="revolute">
@@ -216,14 +204,6 @@
         <origin xyz="0 0 0.02" rpy="0 0 0" />
     </joint>
 
-    <joint name="hand_attach_joint" type="fixed">
-        <parent link="hand_link" />
-        <child link="attach_link" />
-        <origin xyz="0 0 0.10" rpy="0 0 0" />
-    </joint>
 
-    <gazebo reference="hand_attach_joint">
-        <preserveFixedJoint>true</preserveFixedJoint>
-    </gazebo>
 
 </robot>
