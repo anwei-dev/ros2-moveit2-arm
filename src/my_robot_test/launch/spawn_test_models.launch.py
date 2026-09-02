@@ -1,3 +1,4 @@
+# 用于加载测试模型
 import os
 
 from ament_index_python.packages import get_package_share_directory
@@ -39,18 +40,18 @@ def generate_launch_description():
         output='screen'
     )
 
-    spawn_blue_cube = Node(
-        package='gazebo_ros',
-        executable='spawn_entity.py',
-        arguments=[
-            '-entity', 'blue_cube',
-            '-file', blue_cube_sdf_file,
-            '-x', '-1.0',
-            '-y', '-1.0',
-            '-z', '0.0',
-        ],
-        output='screen'
-    )
+    # spawn_blue_cube = Node(
+    #     package='gazebo_ros',
+    #     executable='spawn_entity.py',
+    #     arguments=[
+    #         '-entity', 'blue_cube',
+    #         '-file', blue_cube_sdf_file,
+    #         '-x', '-4.0',
+    #         '-y', '-1.0',
+    #         '-z', '4.0',
+    #     ],
+    #     output='screen'
+    # )
 
     spawn_red_cube = Node(
         package='gazebo_ros',
@@ -107,7 +108,7 @@ def generate_launch_description():
     return LaunchDescription([
         spawn_cube,
         spawn_frustum,
-        spawn_blue_cube,
+        # spawn_blue_cube,
         spawn_red_cube,
         spawn_blue_cube_q4_a,
         spawn_blue_cube_q4_b,
