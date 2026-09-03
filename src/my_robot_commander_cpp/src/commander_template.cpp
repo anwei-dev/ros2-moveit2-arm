@@ -270,8 +270,8 @@ class Commander
         rclcpp::Subscription<FloatArray>::SharedPtr joint_cmd_sub_;
         rclcpp::Subscription<PoseCmd>::SharedPtr pose_cmd_sub_;
         rclcpp::TimerBase::SharedPtr close_timer_;
-        const double close_effort_ = 8.0;
-        const double open_effort_ = 20.0;
+        const double close_effort_ = 4.0;
+        const double open_effort_ = 5.0;
         const double close_goal_left_ = 0.025;
         const double close_goal_right_ = -0.025;
         const double stall_position_epsilon_ = 1e-4;
