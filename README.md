@@ -1,5 +1,6 @@
 # 🤖 ROS2 MoveIt2 机械臂抓取分拣系统
 
+<img width="837" height="567" alt="8a33e41ff6cfff4399698c44ac00fd95" src="https://github.com/user-attachments/assets/6e27b446-5153-4b78-8774-e9e7d573e4f3" />
 
 
 > 基于 ROS 2 Humble + MoveIt2 + Gazebo 的工业机器人抓取分拣全流程仿真，涵盖 URDF 建模、运动规划、视觉检测、自动抓取与颜色分拣。
