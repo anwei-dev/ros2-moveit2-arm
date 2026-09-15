@@ -6,7 +6,9 @@ from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 
 
-# Fixed startup sequence: Gazebo -> MoveIt move_group -> commander (RViz optional).
+# Start Gazebo immediately, then launch MoveIt, commander,
+# and auto-attach after a fixed delay.
+# todo:延时替换成检测上一步完成再启动下一步
 def generate_launch_description():
     start_rviz = LaunchConfiguration('start_rviz')
 
