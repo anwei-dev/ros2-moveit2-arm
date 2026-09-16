@@ -68,9 +68,9 @@
 
     <!-- finger属性 -->
     <gazebo reference="gripper_left_finger_link">
-        <mu1>10.0</mu1>
-        <mu2>10.0</mu2>
-        <kp>100000.0</kp>
+        <mu1>4.0</mu1>
+        <mu2>4.0</mu2>
+        <kp>10000.0</kp>
         <kd>100.0</kd>
         <minDepth>0.001</minDepth>
         <maxVel>0.01</maxVel>
