@@ -13,12 +13,22 @@ find_package(example_interfaces REQUIRED)
 find_package(my_robot_interfaces REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(rclcpp_action REQUIRED)
 
 add_executable(commander
   src/commander_template.cpp
 )
 ament_target_dependencies(commander rclcpp moveit_ros_planning_interface example_interfaces my_robot_interfaces std_msgs)
 ament_target_dependencies(commander sensor_msgs)
+ament_target_dependencies(commander
+  rclcpp
+  rclcpp_action
+  moveit_ros_planning_interface
+  example_interfaces
+  my_robot_interfaces
+  sensor_msgs
+  std_msgs
+)
 
 install(TARGETS                
   commander
