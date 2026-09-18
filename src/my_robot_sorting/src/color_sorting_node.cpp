@@ -8,23 +8,28 @@
 #include <example_interfaces/msg/bool.hpp>
 #include <my_robot_interfaces/msg/detected_object.hpp>
 #include <my_robot_interfaces/msg/detected_object_array.hpp>
-#include <my_robot_interfaces/msg/pose_command.hpp>
 #include <rclcpp/rclcpp.hpp>
 
+#include <rclcpp_action/rclcpp_action.hpp>
+#include <my_robot_interfaces/action/move_to_pose.hpp>
+
 using namespace std::chrono_literals;
+using MoveToPose = my_robot_interfaces::action::MoveToPose;
+using GoalHandleMoveToPose = rclcpp_action::ClientGoalHandle<MoveToPose>;
 
 class ColorSortingNode : public rclcpp::Node
 {
 public:
   ColorSortingNode()
-  : Node("color_sorting_node")
+      : Node("color_sorting_node")
   {
-    pose_pub_ = create_publisher<my_robot_interfaces::msg::PoseCommand>("pose_command", 10);
+    move_to_pose_client_ =
+        rclcpp_action::create_client<MoveToPose>(this, "move_to_pose");
     gripper_pub_ = create_publisher<example_interfaces::msg::Bool>("open_gripper", 10);
 
     object_sub_ = create_subscription<my_robot_interfaces::msg::DetectedObjectArray>(
-      "/detected_objects", 10,
-      std::bind(&ColorSortingNode::objectsCallback, this, std::placeholders::_1));
+        "/detected_objects", 10,
+        std::bind(&ColorSortingNode::objectsCallback, this, std::placeholders::_1));
 
     pregrasp_height_ = declare_parameter("pregrasp_height", 0.20);
     grasp_surface_offset_ = declare_parameter("grasp_surface_offset", 0.02);
@@ -65,7 +70,15 @@ private:
     };
 
     Type type;
-    my_robot_interfaces::msg::PoseCommand pose;
+
+    double x{0.0};
+    double y{0.0};
+    double z{0.0};
+    double roll{0.0};
+    double pitch{0.0};
+    double yaw{0.0};
+    bool cartesian_path{false};
+
     bool open_gripper{false};
     double wait_seconds{0.0};
     std::string description;
@@ -74,36 +87,43 @@ private:
   void objectsCallback(const my_robot_interfaces::msg::DetectedObjectArray::SharedPtr msg)
   {
     latest_objects_ = msg;
-    if (sequence_started_) {
+    if (sequence_started_)
+    {
       return;
     }
 
-    if (!wait_for_stable_detections_) {
+    if (!wait_for_stable_detections_)
+    {
       tryStartSequence(*msg);
       return;
     }
 
-    if (isDetectionStable(*msg)) {
+    if (isDetectionStable(*msg))
+    {
       ++stable_hits_;
-    } else {
+    }
+    else
+    {
       stable_hits_ = 1;
       stable_signature_ = buildSignature(*msg);
     }
 
-    if (stable_hits_ >= stable_detection_count_) {
+    if (stable_hits_ >= stable_detection_count_)
+    {
       tryStartSequence(*msg);
     }
   }
 
-  bool isDetectionStable(const my_robot_interfaces::msg::DetectedObjectArray & msg) const
+  bool isDetectionStable(const my_robot_interfaces::msg::DetectedObjectArray &msg) const
   {
     return buildSignature(msg) == stable_signature_;
   }
 
-  std::string buildSignature(const my_robot_interfaces::msg::DetectedObjectArray & msg) const
+  std::string buildSignature(const my_robot_interfaces::msg::DetectedObjectArray &msg) const
   {
     std::string signature;
-    for (const auto & object : msg.objects) {
+    for (const auto &object : msg.objects)
+    {
       signature += object.color + "|" + object.shape + "|";
       signature += std::to_string(std::lround(object.top_center.x * 100.0)) + ",";
       signature += std::to_string(std::lround(object.top_center.y * 100.0)) + ";";
@@ -111,18 +131,20 @@ private:
     return signature;
   }
 
-  void tryStartSequence(const my_robot_interfaces::msg::DetectedObjectArray & msg)
+  void tryStartSequence(const my_robot_interfaces::msg::DetectedObjectArray &msg)
   {
     const auto task_plan = selectTask(msg);
-    if (!task_plan.has_value()) {
+    if (!task_plan.has_value())
+    {
       RCLCPP_WARN_THROTTLE(
-        get_logger(), *get_clock(), 2000,
-        "No valid grasp/target pair found in /detected_objects");
+          get_logger(), *get_clock(), 2000,
+          "No valid grasp/target pair found in /detected_objects");
       return;
     }
 
     buildSequence(*task_plan);
-    if (steps_.empty()) {
+    if (steps_.empty())
+    {
       RCLCPP_WARN(get_logger(), "Generated empty sorting sequence");
       return;
     }
@@ -133,24 +155,29 @@ private:
     step_timer_->reset();
 
     RCLCPP_INFO(
-      get_logger(),
-      "Starting sorting sequence: grasp=%s color=%s target=%s color=%s",
-      task_plan->grasp.id.c_str(), task_plan->grasp.color.c_str(),
-      task_plan->target.id.c_str(), task_plan->target.color.c_str());
+        get_logger(),
+        "Starting sorting sequence: grasp=%s color=%s target=%s color=%s",
+        task_plan->grasp.id.c_str(), task_plan->grasp.color.c_str(),
+        task_plan->target.id.c_str(), task_plan->target.color.c_str());
   }
 
-  std::optional<TaskPlan> selectTask(const my_robot_interfaces::msg::DetectedObjectArray & msg) const
+  std::optional<TaskPlan> selectTask(const my_robot_interfaces::msg::DetectedObjectArray &msg) const
   {
-    for (const auto & grasp_candidate : msg.objects) {
-      if (grasp_candidate.shape != "grasp") {
+    for (const auto &grasp_candidate : msg.objects)
+    {
+      if (grasp_candidate.shape != "grasp")
+      {
         continue;
       }
 
-      for (const auto & target_candidate : msg.objects) {
-        if (target_candidate.shape != "target") {
+      for (const auto &target_candidate : msg.objects)
+      {
+        if (target_candidate.shape != "target")
+        {
           continue;
         }
-        if (target_candidate.color != grasp_candidate.color) {
+        if (target_candidate.color != grasp_candidate.color)
+        {
           continue;
         }
         return TaskPlan{grasp_candidate, target_candidate};
@@ -159,12 +186,12 @@ private:
     return std::nullopt;
   }
 
-  void buildSequence(const TaskPlan & task_plan)
+  void buildSequence(const TaskPlan &task_plan)
   {
     steps_.clear();
 
-    const auto & grasp = task_plan.grasp;
-    const auto & target = task_plan.target;
+    const auto &grasp = task_plan.grasp;
+    const auto &target = task_plan.target;
 
     const double grasp_z = grasp.height + grasp_surface_offset_;
     const double pregrasp_z = grasp.height + pregrasp_height_;
@@ -185,23 +212,27 @@ private:
   }
 
   Step makePoseStep(
-    double x, double y, double z, bool cartesian_path, double wait_seconds, const std::string & description) const
+      double x, double y, double z, bool cartesian_path,
+      double wait_seconds, const std::string &description) const
   {
     Step step;
     step.type = Step::Type::kPose;
-    step.pose.x = x;
-    step.pose.y = y;
-    step.pose.z = z;
-    step.pose.roll = roll_;
-    step.pose.pitch = pitch_;
-    step.pose.yaw = yaw_;
-    step.pose.cartesian_path = cartesian_path;
+
+    step.x = x;
+    step.y = y;
+    step.z = z;
+    step.roll = roll_;
+    step.pitch = pitch_;
+    step.yaw = yaw_;
+    step.cartesian_path = cartesian_path;
+
     step.wait_seconds = wait_seconds;
     step.description = description;
+
     return step;
   }
 
-  Step makeGripperStep(bool open_gripper, double wait_seconds, const std::string & description) const
+  Step makeGripperStep(bool open_gripper, double wait_seconds, const std::string &description) const
   {
     Step step;
     step.type = Step::Type::kGripper;
@@ -211,48 +242,184 @@ private:
     return step;
   }
 
-  void runNextStep()
+  void sendPoseGoal(const Step &step)
   {
-    if (!sequence_started_) {
-      return;
-    }
+    if (!move_to_pose_client_->wait_for_action_server(1s))
+    {
+      RCLCPP_ERROR(
+          get_logger(),
+          "MoveToPose action server is not available");
 
-    if (now() < next_step_ready_time_) {
-      return;
-    }
-
-    if (current_step_index_ >= steps_.size()) {
-      RCLCPP_INFO(get_logger(), "Sorting sequence completed");
       sequence_started_ = false;
       step_timer_->cancel();
       return;
     }
 
-    const Step & step = steps_[current_step_index_];
-    if (step.type == Step::Type::kPose) {
-      pose_pub_->publish(step.pose);
-      RCLCPP_INFO(
-        get_logger(),
-        "Step %zu/%zu: %s -> pose(%.3f, %.3f, %.3f) cartesian=%s",
-        current_step_index_ + 1, steps_.size(), step.description.c_str(),
-        step.pose.x, step.pose.y, step.pose.z,
-        step.pose.cartesian_path ? "true" : "false");
-    } else {
-      example_interfaces::msg::Bool command;
-      command.data = step.open_gripper;
-      gripper_pub_->publish(command);
-      RCLCPP_INFO(
-        get_logger(),
-        "Step %zu/%zu: %s -> open_gripper=%s",
-        current_step_index_ + 1, steps_.size(), step.description.c_str(),
-        step.open_gripper ? "true" : "false");
-    }
+    MoveToPose::Goal goal;
 
-    next_step_ready_time_ = now() + rclcpp::Duration::from_seconds(step.wait_seconds);
-    ++current_step_index_;
+    goal.x = step.x;
+    goal.y = step.y;
+    goal.z = step.z;
+    goal.roll = step.roll;
+    goal.pitch = step.pitch;
+    goal.yaw = step.yaw;
+    goal.cartesian_path = step.cartesian_path;
+
+    RCLCPP_INFO(
+        get_logger(),
+        "Step %zu/%zu: %s -> send MoveToPose goal "
+        "pose(%.3f, %.3f, %.3f) cartesian=%s",
+        current_step_index_ + 1,
+        steps_.size(),
+        step.description.c_str(),
+        step.x,
+        step.y,
+        step.z,
+        step.cartesian_path ? "true" : "false");
+
+    step_in_progress_ = true;
+
+    rclcpp_action::Client<MoveToPose>::SendGoalOptions send_goal_options;
+
+    send_goal_options.goal_response_callback =
+        std::bind(
+            &ColorSortingNode::goalResponseCallback,
+            this,
+            std::placeholders::_1);
+
+    send_goal_options.feedback_callback =
+        std::bind(
+            &ColorSortingNode::feedbackCallback,
+            this,
+            std::placeholders::_1,
+            std::placeholders::_2);
+
+    send_goal_options.result_callback =
+        std::bind(
+            &ColorSortingNode::resultCallback,
+            this,
+            std::placeholders::_1);
+
+    move_to_pose_client_->async_send_goal(goal, send_goal_options);
   }
 
-  rclcpp::Publisher<my_robot_interfaces::msg::PoseCommand>::SharedPtr pose_pub_;
+  void goalResponseCallback(
+      const GoalHandleMoveToPose::SharedPtr &goal_handle)
+  {
+    if (!goal_handle)
+    {
+      RCLCPP_ERROR(
+          get_logger(),
+          "MoveToPose goal was rejected by the action server");
+
+      step_in_progress_ = false;
+      sequence_started_ = false;
+      step_timer_->cancel();
+      return;
+    }
+
+    RCLCPP_INFO(
+        get_logger(),
+        "MoveToPose goal accepted by the action server");
+  }
+
+  void feedbackCallback(
+      GoalHandleMoveToPose::SharedPtr,
+      const std::shared_ptr<const MoveToPose::Feedback> feedback)
+  {
+    RCLCPP_INFO(
+        get_logger(),
+        "MoveToPose feedback: state=%s, progress=%.2f",
+        feedback->state.c_str(),
+        feedback->progress);
+  }
+
+  void resultCallback(
+      const GoalHandleMoveToPose::WrappedResult &result)
+  {
+    step_in_progress_ = false;
+
+    if (result.code == rclcpp_action::ResultCode::SUCCEEDED &&
+        result.result->success)
+    {
+      RCLCPP_INFO(
+          get_logger(),
+          "MoveToPose succeeded: error_code=%d",
+          result.result->error_code);
+
+      ++current_step_index_;
+      next_step_ready_time_ =
+          now() + rclcpp::Duration::from_seconds(0.0);
+
+      return;
+    }
+
+    RCLCPP_ERROR(
+        get_logger(),
+        "MoveToPose failed: result_code=%d, success=%s, error_code=%d",
+        static_cast<int>(result.code),
+        result.result->success ? "true" : "false",
+        result.result->error_code);
+
+    sequence_started_ = false;
+    step_timer_->cancel();
+  }
+
+  void runNextStep()
+  {
+    if (!sequence_started_)
+    {
+      return;
+    }
+
+    if (step_in_progress_)
+    {
+      return;
+    }
+
+    if (now() < next_step_ready_time_)
+    {
+      return;
+    }
+
+    if (current_step_index_ >= steps_.size())
+    {
+      RCLCPP_INFO(get_logger(), "Sorting sequence completed");
+
+      sequence_started_ = false;
+      step_timer_->cancel();
+
+      return;
+    }
+
+    const Step &step = steps_[current_step_index_];
+
+    if (step.type == Step::Type::kPose)
+    {
+      sendPoseGoal(step);
+      return;
+    }
+
+    example_interfaces::msg::Bool command;
+    command.data = step.open_gripper;
+
+    gripper_pub_->publish(command);
+
+    RCLCPP_INFO(
+        get_logger(),
+        "Step %zu/%zu: %s -> open_gripper=%s",
+        current_step_index_ + 1,
+        steps_.size(),
+        step.description.c_str(),
+        step.open_gripper ? "true" : "false");
+
+    ++current_step_index_;
+
+    next_step_ready_time_ =
+        now() + rclcpp::Duration::from_seconds(step.wait_seconds);
+  }
+
+  rclcpp_action::Client<MoveToPose>::SharedPtr move_to_pose_client_;
   rclcpp::Publisher<example_interfaces::msg::Bool>::SharedPtr gripper_pub_;
   rclcpp::Subscription<my_robot_interfaces::msg::DetectedObjectArray>::SharedPtr object_sub_;
   rclcpp::TimerBase::SharedPtr step_timer_;
@@ -260,6 +427,9 @@ private:
   my_robot_interfaces::msg::DetectedObjectArray::SharedPtr latest_objects_;
   std::vector<Step> steps_;
   bool sequence_started_{false};
+
+  bool step_in_progress_{false};
+
   std::size_t current_step_index_{0};
   rclcpp::Time next_step_ready_time_{0, 0, RCL_ROS_TIME};
   std::string stable_signature_;
@@ -283,7 +453,7 @@ private:
   int stable_detection_count_;
 };
 
-int main(int argc, char ** argv)
+int main(int argc, char **argv)
 {
   rclcpp::init(argc, argv);
   rclcpp::spin(std::make_shared<ColorSortingNode>());

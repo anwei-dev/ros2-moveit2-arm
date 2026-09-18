@@ -9,6 +9,8 @@ find_package(ament_cmake REQUIRED)
 find_package(example_interfaces REQUIRED)
 find_package(my_robot_interfaces REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_action REQUIRED)
+
 
 add_executable(color_sorting_node
   src/color_sorting_node.cpp
@@ -17,6 +19,7 @@ add_executable(color_sorting_node
 ament_target_dependencies(color_sorting_node
   example_interfaces
   my_robot_interfaces
+  rclcpp_action
   rclcpp
 )
 

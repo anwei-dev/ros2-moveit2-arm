@@ -12,6 +12,8 @@
   <depend>example_interfaces</depend>
   <depend>my_robot_interfaces</depend>
   <depend>rclcpp</depend>
+  <depend>rclcpp_action</depend>
+
 
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
