@@ -10,13 +10,13 @@
 #include <example_interfaces/msg/bool.hpp> // 新增：包含Bool消息类型
 #include <gazebo_msgs/msg/link_states.hpp>
 #include <gazebo_msgs/msg/model_states.hpp>
-#include <gazebo_model_attachment_plugin_msgs/srv/attach.hpp>
-#include <gazebo_model_attachment_plugin_msgs/srv/detach.hpp> // 新增：包含Detach服务类型
+#include <boeing_gazebo_model_attachment_plugin_msgs/srv/attach.hpp>
+#include <boeing_gazebo_model_attachment_plugin_msgs/srv/detach.hpp> // 新增：包含Detach服务类型
 #include <rclcpp/rclcpp.hpp>
 
 using namespace std::chrono_literals;
-using AttachSrv = gazebo_model_attachment_plugin_msgs::srv::Attach;
-using DetachSrv = gazebo_model_attachment_plugin_msgs::srv::Detach; // 新增：定义Detach服务别名
+using AttachSrv = boeing_gazebo_model_attachment_plugin_msgs::srv::Attach;
+using DetachSrv = boeing_gazebo_model_attachment_plugin_msgs::srv::Detach; // 新增：定义Detach服务别名
 using LinkStates = gazebo_msgs::msg::LinkStates;
 using ModelStates = gazebo_msgs::msg::ModelStates;
 

@@ -32,7 +32,7 @@ public:
         std::bind(&ColorSortingNode::objectsCallback, this, std::placeholders::_1));
 
     pregrasp_height_ = declare_parameter("pregrasp_height", 0.20);
-    grasp_surface_offset_ = declare_parameter("grasp_surface_offset", 0.02);
+    grasp_surface_offset_ = declare_parameter("grasp_surface_offset", 0.03);
     lift_height_ = declare_parameter("lift_height", 0.20);
     preplace_clearance_ = declare_parameter("preplace_clearance", 0.23);
     place_surface_offset_ = declare_parameter("place_surface_offset", 0.13);

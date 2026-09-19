@@ -10,7 +10,7 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>gazebo_msgs</depend>
-  <depend>gazebo_model_attachment_plugin_msgs</depend>
+  <depend>boeing_gazebo_model_attachment_plugin_msgs</depend>
   <depend>example_interfaces</depend>
   <depend>rclcpp</depend>
 

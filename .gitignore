@@ -42,3 +42,6 @@ log/
 *.db3
 install/
 build/
+
+#plugin
+src/gazebo_model_attachment_plugin/

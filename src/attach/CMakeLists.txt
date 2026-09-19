@@ -8,7 +8,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(example_interfaces REQUIRED)
 find_package(gazebo_msgs REQUIRED)
-find_package(gazebo_model_attachment_plugin_msgs REQUIRED)
+find_package(boeing_gazebo_model_attachment_plugin_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 
 
@@ -19,7 +19,7 @@ add_executable(auto_attach_node
 ament_target_dependencies(auto_attach_node
   example_interfaces
   gazebo_msgs
-  gazebo_model_attachment_plugin_msgs
+  boeing_gazebo_model_attachment_plugin_msgs
   rclcpp
 )
 
