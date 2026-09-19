@@ -106,7 +106,7 @@
     <joint name="gripper_attach_joint" type="fixed">
         <parent link="gripper_base_link" />
         <child link="attach_link" />
-        <origin xyz="0 0 0.02" rpy="0 0 0" />
+        <origin xyz="0 0 0.022" rpy="0 0 0" />
     </joint>
 
     <gazebo reference="gripper_attach_joint">
