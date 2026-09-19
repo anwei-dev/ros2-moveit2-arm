@@ -241,3 +241,7 @@ MIT
 - [MoveIt2](https://moveit.ros.org/) — 运动规划框架
 - [ROS 2](https://docs.ros.org/en/humble/) — 机器人操作系统
 - [Gazebo](https://gazebosim.org/) — 物理仿真引擎
+
+export GAZEBO_PLUGIN_PATH=$HOME/git/bot/ros2_ws/install/boeing_gazebo_model_attachment_plugin/lib:$GAZEBO_PLUGIN_PATH
+gazebo plugin环境变量配置，注意实际路径
+为加载引入的插件源码
