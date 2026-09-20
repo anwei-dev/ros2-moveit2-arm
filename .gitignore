@@ -43,5 +43,3 @@ log/
 install/
 build/
 
-#plugin
-src/gazebo_model_attachment_plugin/

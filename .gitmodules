@@ -1,0 +1,3 @@
+[submodule "src/gazebo_model_attachment_plugin"]
+	path = src/gazebo_model_attachment_plugin
+	url = https://github.com/anwei-dev/gazebo_model_attachment_plugin.git
