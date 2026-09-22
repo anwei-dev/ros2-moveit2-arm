@@ -1,4 +1,5 @@
 <img width="683" height="374" alt="image" src="https://github.com/user-attachments/assets/ac4667e3-2422-49e6-afc9-0f3d3ab793e6" />
+
 # 🤖 ROS2 + MoveIt2 机械臂视觉抓取分拣系统
 
 > 基于 **ROS 2 Humble + MoveIt2 + Gazebo Classic** 的 6-DOF 机械臂「感知 → 规划 → 抓取 → 分拣」全流程仿真。
