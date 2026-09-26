@@ -147,23 +147,30 @@ private:
     {
         MoveGroupInterface::Plan plan;
 
-        bool plan_success =
-            interface->plan(plan) ==
-            moveit::core::MoveItErrorCode::SUCCESS;
+        auto planning_result = interface->plan(plan);
 
-        if (!plan_success)
+        if (planning_result != moveit::core::MoveItErrorCode::SUCCESS)
         {
             RCLCPP_ERROR(
                 node_->get_logger(),
-                "MoveIt2 planning failed");
+                "MoveIt2 planning failed, error_code=%d",
+                planning_result.val);
 
             return false;
         }
 
         auto execution_result = interface->execute(plan);
+        if (execution_result != moveit::core::MoveItErrorCode::SUCCESS)
+        {
+            RCLCPP_ERROR(
+                node_->get_logger(),
+                "MoveIt2 execution failed, error_code=%d",
+                execution_result.val);
 
-        return execution_result ==
-               moveit::core::MoveItErrorCode::SUCCESS;
+            return false;
+        }
+
+        return true;
     }
 
     void publishGripperEffort(double left_effort, double right_effort)
@@ -303,7 +310,6 @@ private:
             goToJointTarget(joints);
         }
     }
-
 
     rclcpp_action::GoalResponse handleGoal(
         const rclcpp_action::GoalUUID &uuid,
