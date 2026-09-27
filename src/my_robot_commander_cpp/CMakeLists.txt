@@ -14,12 +14,34 @@ find_package(my_robot_interfaces REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(rclcpp_action REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(moveit_msgs REQUIRED)
+find_package(shape_msgs REQUIRED)
 
 add_executable(commander
   src/commander_template.cpp
 )
-ament_target_dependencies(commander rclcpp moveit_ros_planning_interface example_interfaces my_robot_interfaces std_msgs)
-ament_target_dependencies(commander sensor_msgs)
+
+add_executable(planning_scene_manager
+  src/planning_scene_manager.cpp
+)
+
+target_include_directories(commander PRIVATE
+  include
+)
+
+target_include_directories(planning_scene_manager PRIVATE
+  include
+)
+
+ament_target_dependencies(planning_scene_manager
+  rclcpp
+  moveit_ros_planning_interface
+  geometry_msgs
+  moveit_msgs
+  shape_msgs
+)
+
 ament_target_dependencies(commander
   rclcpp
   rclcpp_action
@@ -30,8 +52,9 @@ ament_target_dependencies(commander
   std_msgs
 )
 
-install(TARGETS                
+install(TARGETS
   commander
+  planning_scene_manager
   DESTINATION lib/${PROJECT_NAME}/
 )
 
