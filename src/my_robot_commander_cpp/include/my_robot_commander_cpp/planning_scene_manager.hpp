@@ -8,7 +8,18 @@ class PlanningSceneManager : public rclcpp::Node
 {
 public:
     PlanningSceneManager();
-    
+
+    void removeObject(const std::string& id);    
+
+    void updateBox(
+	const std::string& id,
+	double x,
+	double y,
+	double z,
+	double size_x,
+	double size_y,
+	double size_z);
+
     void addBox(
 	const std::string& id,
 	double x,

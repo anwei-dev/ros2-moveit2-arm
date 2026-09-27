@@ -50,6 +50,41 @@ void PlanningSceneManager::addBox(
         x, y, z);
 }
 
+void PlanningSceneManager::updateBox(
+    const std::string& id,
+    double x,
+    double y,
+    double z,
+    double size_x,
+    double size_y,
+    double size_z)
+{
+    addBox(
+        id,
+        x,
+        y,
+        z,
+        size_x,
+        size_y,
+        size_z);
+
+    RCLCPP_INFO(
+        get_logger(),
+        "Updated box obstacle '%s' at (%.2f, %.2f, %.2f)",
+        id.c_str(),
+        x, y, z);
+}
+
+void PlanningSceneManager::removeObject(const std::string& id)
+{
+    planning_scene_interface_.removeCollisionObjects({id});
+
+    RCLCPP_INFO(
+	get_logger(),
+	"Remove collision object '%s'",
+	id.c_str());
+}
+
 int main(int argc, char * argv[])
 {
     rclcpp::init(argc, argv);
@@ -59,6 +94,10 @@ int main(int argc, char * argv[])
     node->addBox(
         "test_obstacle",
         0.5, 0.0, 0.3,
+        0.2, 0.2, 0.6);
+    node->updateBox(
+        "test_obstacle",
+        0.5, 1.0, 0.3,
         0.2, 0.2, 0.6);
 
     rclcpp::spin(node);
