@@ -40,6 +40,7 @@ ament_target_dependencies(planning_scene_manager
   geometry_msgs
   moveit_msgs
   shape_msgs
+  my_robot_interfaces
 )
 
 ament_target_dependencies(commander

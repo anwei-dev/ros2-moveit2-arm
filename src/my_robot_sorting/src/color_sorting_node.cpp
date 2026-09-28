@@ -44,7 +44,7 @@ public:
     yaw_ = declare_parameter("yaw", 0.0);
     pose_wait_sec_ = declare_parameter("pose_wait_sec", 5.0);
     cartesian_wait_sec_ = declare_parameter("cartesian_wait_sec", 3.0);
-    gripper_wait_sec_ = declare_parameter("gripper_wait_sec", 2.0);
+    gripper_wait_sec_ = declare_parameter("gripper_wait_sec", 1.0);
     wait_for_stable_detections_ = declare_parameter("wait_for_stable_detections", true);
     stable_detection_count_ = declare_parameter("stable_detection_count", 3);
 
