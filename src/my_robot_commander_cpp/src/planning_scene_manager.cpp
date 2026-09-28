@@ -5,6 +5,7 @@
 #include <shape_msgs/msg/solid_primitive.hpp>
 
 #include <functional>
+#include <set>
 
 PlanningSceneManager::PlanningSceneManager()
 : Node("planning_scene_manager")
@@ -23,6 +24,9 @@ PlanningSceneManager::PlanningSceneManager()
 void PlanningSceneManager::detectedObjectsCallback(
     const my_robot_interfaces::msg::DetectedObjectArray::SharedPtr msg)
 {
+    // 当前这一帧检测到的 target 物体 ID
+    std::set<std::string> detected_object_ids;
+
     for (const auto& object : msg->objects)
     {
         // 目前只把 target 类型的物体加入 Planning Scene
@@ -30,6 +34,8 @@ void PlanningSceneManager::detectedObjectsCallback(
         {
             continue;
         }
+
+        detected_object_ids.insert(object.id);
 
         // top_center 表示物体顶部中心，
         // 因此几何中心 z = top_center.z - height / 2
@@ -43,15 +49,45 @@ void PlanningSceneManager::detectedObjectsCallback(
         const double size_y = object.diameter_x;
         const double size_z = object.height;
 
-        addBox(
-            object.id,
-            center_x,
-            center_y,
-            center_z,
-            size_x,
-            size_y,
-            size_z);
+        // 如果上一帧没有这个物体，说明是新出现的物体
+        if (current_object_ids_.find(object.id) ==
+            current_object_ids_.end())
+        {
+            addBox(
+                object.id,
+                center_x,
+                center_y,
+                center_z,
+                size_x,
+                size_y,
+                size_z);
+        }
+        else
+        {
+            // 已经存在，更新其位置和尺寸
+            updateBox(
+                object.id,
+                center_x,
+                center_y,
+                center_z,
+                size_x,
+                size_y,
+                size_z);
+        }
     }
+
+    // 检查上一帧存在、这一帧已经消失的物体
+    for (const auto& old_id : current_object_ids_)
+    {
+        if (detected_object_ids.find(old_id) ==
+            detected_object_ids.end())
+        {
+            removeObject(old_id);
+        }
+    }
+
+    // 保存当前帧的物体 ID，供下一帧比较
+    current_object_ids_ = detected_object_ids;
 }
 
 void PlanningSceneManager::addBox(
@@ -158,17 +194,6 @@ int main(int argc, char* argv[])
 
     auto node =
         std::make_shared<PlanningSceneManager>();
-
-    // 静态测试障碍物。
-    // 完成视觉检测接入测试后，可以删除这一段。
-    node->addBox(
-        "test_obstacle",
-        0.5,
-        0.0,
-        0.3,
-        0.2,
-        0.2,
-        0.6);
 
     rclcpp::spin(node);
 
