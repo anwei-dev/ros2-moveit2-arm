@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
+
 project(my_robot_vision)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -6,6 +7,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake REQUIRED)
+
 find_package(geometry_msgs REQUIRED)
 find_package(my_robot_interfaces REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -17,6 +19,14 @@ find_package(visualization_msgs REQUIRED)
 
 add_executable(color_point_cloud_detector
   src/color_point_cloud_detector.cpp
+  src/color_classifier.cpp
+  src/point_cloud_processor.cpp
+  src/detection_stabilizer.cpp
+)
+
+target_include_directories(color_point_cloud_detector
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 ament_target_dependencies(color_point_cloud_detector
@@ -32,11 +42,17 @@ ament_target_dependencies(color_point_cloud_detector
 
 install(TARGETS
   color_point_cloud_detector
-  DESTINATION lib/${PROJECT_NAME}/
+  DESTINATION lib/${PROJECT_NAME}
 )
 
-install(DIRECTORY launch
-  DESTINATION share/${PROJECT_NAME}
+install(DIRECTORY
+  include/
+  DESTINATION include/
+)
+
+install(DIRECTORY
+  launch/
+  DESTINATION share/${PROJECT_NAME}/launch
 )
 
 ament_package()
