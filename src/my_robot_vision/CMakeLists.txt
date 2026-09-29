@@ -16,6 +16,7 @@ find_package(std_msgs REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(visualization_msgs REQUIRED)
+find_package(PCL REQUIRED COMPONENTS common)
 
 add_executable(color_point_cloud_detector
   src/color_point_cloud_detector.cpp
@@ -27,6 +28,16 @@ add_executable(color_point_cloud_detector
 target_include_directories(color_point_cloud_detector
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${PCL_INCLUDE_DIRS}
+)
+
+target_link_libraries(color_point_cloud_detector
+  ${PCL_LIBRARIES}
+)
+
+target_compile_definitions(color_point_cloud_detector
+  PRIVATE
+    ${PCL_DEFINITIONS}
 )
 
 ament_target_dependencies(color_point_cloud_detector

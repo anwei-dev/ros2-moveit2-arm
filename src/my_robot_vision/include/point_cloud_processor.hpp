@@ -10,6 +10,9 @@
 #include <unordered_map>
 #include <vector>
 
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+
 #include "color_classifier.hpp"
 
 class PointCloudProcessor
@@ -51,41 +54,46 @@ public:
   };
 
   PointCloudProcessor(
-    double min_x,
-    double max_x,
-    double min_y,
-    double max_y,
-    double min_z,
-    double max_z,
-    double grid_resolution,
-    std::size_t min_cluster_points,
-    double top_layer_thickness,
-    double height_category_threshold,
-    std::size_t min_top_points);
+      double min_x,
+      double max_x,
+      double min_y,
+      double max_y,
+      double min_z,
+      double max_z,
+      double grid_resolution,
+      std::size_t min_cluster_points,
+      double top_layer_thickness,
+      double height_category_threshold,
+      std::size_t min_top_points);
 
   std::vector<my_robot_interfaces::msg::DetectedObject>
   process(
-    const sensor_msgs::msg::PointCloud2 &msg,
-    const tf2::Transform &tf_sensor_to_target);
+      const sensor_msgs::msg::PointCloud2 &msg,
+      const tf2::Transform &tf_sensor_to_target);
 
 private:
   using CellMap =
-    std::unordered_map<
-      CellIndex,
-      Cluster,
-      CellIndexHash>;
+      std::unordered_map<
+          CellIndex,
+          Cluster,
+          CellIndexHash>;
+
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr
+  convertToPCL(
+      const sensor_msgs::msg::PointCloud2 &msg,
+      const tf2::Transform &tf_sensor_to_target) const;
 
   void collectPoints(
-    const sensor_msgs::msg::PointCloud2 &msg,
-    const tf2::Transform &tf_sensor_to_target,
-    CellMap &cells);
+      const sensor_msgs::msg::PointCloud2 &msg,
+      const tf2::Transform &tf_sensor_to_target,
+      CellMap &cells);
 
   std::vector<Cluster> buildClusters(
-    const CellMap &cells) const;
+      const CellMap &cells) const;
 
   bool buildDetectedObject(
-    const std::vector<PointSample> &points,
-    my_robot_interfaces::msg::DetectedObject &object) const;
+      const std::vector<PointSample> &points,
+      my_robot_interfaces::msg::DetectedObject &object) const;
 
   double min_x_;
   double max_x_;
