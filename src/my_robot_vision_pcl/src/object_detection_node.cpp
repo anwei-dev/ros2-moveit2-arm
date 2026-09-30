@@ -133,31 +133,12 @@ private:
     RCLCPP_INFO_THROTTLE(
       get_logger(),
       *get_clock(),
-      1000,
+      5000,
       "Input: %zu points, object cloud: %zu points, clusters: %zu",
       input->points.size(),
       object_cloud->points.size(),
       clusters.size());
 
-    for (std::size_t i = 0; i < clusters.size(); ++i)
-    {
-      const auto & cluster = clusters[i];
-
-      RCLCPP_INFO_THROTTLE(
-        get_logger(),
-        *get_clock(),
-        1000,
-        "Object %zu: points=%zu center=(%.3f, %.3f, %.3f) "
-        "size=(%.3f, %.3f, %.3f)",
-        i,
-        cluster.point_count,
-        cluster.center_x,
-        cluster.center_y,
-        cluster.center_z,
-        cluster.size_x,
-        cluster.size_y,
-        cluster.size_z);
-    }
   }
 
   std::string input_topic_;

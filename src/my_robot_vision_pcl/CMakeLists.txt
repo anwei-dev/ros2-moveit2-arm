@@ -9,11 +9,17 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+if(POLICY CMP0074)
+    cmake_policy(SET CMP0074 NEW)
+endif()
+
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(pcl_conversions REQUIRED)
 find_package(PCL REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(tf2_sensor_msgs REQUIRED)
 
 include_directories(
   include
@@ -45,6 +51,8 @@ ament_target_dependencies(point_cloud_processor_node
   rclcpp
   sensor_msgs
   pcl_conversions
+  tf2_ros
+  tf2_sensor_msgs
 )
 
 target_link_libraries(point_cloud_processor_node
