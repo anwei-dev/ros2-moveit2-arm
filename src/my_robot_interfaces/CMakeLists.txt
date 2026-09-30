@@ -18,6 +18,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/PoseCommand.msg"
   "msg/DetectedObject.msg"
   "msg/DetectedObjectArray.msg"
+  "msg/DetectedObjectPCL.msg"
+  "msg/DetectedObjectPCLArray.msg"
   "action/MoveToPose.action"
   DEPENDENCIES geometry_msgs std_msgs
  )
