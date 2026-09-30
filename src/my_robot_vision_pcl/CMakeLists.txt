@@ -25,6 +25,22 @@ add_executable(point_cloud_processor_node
   src/point_cloud_processor.cpp
 )
 
+add_executable(object_detection_node
+  src/object_detection_node.cpp
+  src/object_detector.cpp
+)
+
+ament_target_dependencies(object_detection_node
+  rclcpp
+  sensor_msgs
+  pcl_conversions
+)
+
+target_link_libraries(object_detection_node
+  ${PCL_LIBRARIES}
+)
+
+
 ament_target_dependencies(point_cloud_processor_node
   rclcpp
   sensor_msgs
@@ -36,7 +52,10 @@ target_link_libraries(point_cloud_processor_node
 )
 
 install(
-  TARGETS point_cloud_processor_node
+  TARGETS 
+    point_cloud_processor_node
+    object_detection_node
+
   DESTINATION lib/${PROJECT_NAME}
 )
 
