@@ -14,6 +14,8 @@ find_package(std_srvs REQUIRED)
 
 add_executable(color_sorting_node
   src/color_sorting_node.cpp
+  src/main.cpp
+  src/task_planner.cpp
 )
 
 ament_target_dependencies(color_sorting_node
@@ -22,6 +24,10 @@ ament_target_dependencies(color_sorting_node
   rclcpp_action
   rclcpp
   std_srvs
+)
+
+target_include_directories(color_sorting_node PRIVATE
+  include
 )
 
 install(TARGETS
