@@ -6,14 +6,15 @@
 
 #include <functional>
 #include <set>
+#include <string>
 
 PlanningSceneManager::PlanningSceneManager()
 : Node("planning_scene_manager")
 {
     detected_objects_sub_ =
         this->create_subscription<
-            my_robot_interfaces::msg::DetectedObjectArray>(
-            "/detected_objects",
+            my_robot_interfaces::msg::DetectedObjectPCLArray>(
+            "/vision/detected_objects",
             10,
             std::bind(
                 &PlanningSceneManager::detectedObjectsCallback,
@@ -22,39 +23,36 @@ PlanningSceneManager::PlanningSceneManager()
 }
 
 void PlanningSceneManager::detectedObjectsCallback(
-    const my_robot_interfaces::msg::DetectedObjectArray::SharedPtr msg)
+    const my_robot_interfaces::msg::DetectedObjectPCLArray::SharedPtr msg)
 {
-    // 当前这一帧检测到的 target 物体 ID
+    // 当前这一帧检测到的所有物体 ID
     std::set<std::string> detected_object_ids;
 
     for (const auto& object : msg->objects)
     {
-        // 目前只把 target 类型的物体加入 Planning Scene
-        if (object.shape != "target")
-        {
-            continue;
-        }
+        const std::string object_id =
+            std::to_string(object.id);
 
-        detected_object_ids.insert(object.id);
+        detected_object_ids.insert(object_id);
 
-        // top_center 表示物体顶部中心，
-        // 因此几何中心 z = top_center.z - height / 2
-        const double center_x = object.top_center.x;
-        const double center_y = object.top_center.y;
-        const double center_z =
-            object.top_center.z - object.height / 2.0;
+        // DetectedObjectPCL 中的 center
+        // 已经表示物体的几何中心
+        const double center_x = object.center.x;
+        const double center_y = object.center.y;
+        const double center_z = object.center.z;
 
-        // 当前先使用 Box 对障碍物进行近似
-        const double size_x = object.diameter_x;
-        const double size_y = object.diameter_x;
-        const double size_z = object.height;
+        // DetectedObjectPCL 中的 dimensions
+        // 直接作为碰撞 Box 的尺寸
+        const double size_x = object.dimensions.x;
+        const double size_y = object.dimensions.y;
+        const double size_z = object.dimensions.z;
 
         // 如果上一帧没有这个物体，说明是新出现的物体
-        if (current_object_ids_.find(object.id) ==
+        if (current_object_ids_.find(object_id) ==
             current_object_ids_.end())
         {
             addBox(
-                object.id,
+                object_id,
                 center_x,
                 center_y,
                 center_z,
@@ -66,7 +64,7 @@ void PlanningSceneManager::detectedObjectsCallback(
         {
             // 已经存在，更新其位置和尺寸
             updateBox(
-                object.id,
+                object_id,
                 center_x,
                 center_y,
                 center_z,

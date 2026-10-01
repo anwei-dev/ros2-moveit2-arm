@@ -99,7 +99,7 @@ def generate_launch_description():
         arguments=[
             '-entity', 'blue_cylinder',
             '-file', blue_cylinder_sdf_file,
-            '-x', '0.8',
+            '-x', '0.7',
             '-y', '-0.5',
             '-z', '0.0',
         ],

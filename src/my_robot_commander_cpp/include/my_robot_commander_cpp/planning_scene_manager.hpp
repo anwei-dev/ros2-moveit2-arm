@@ -3,7 +3,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 
-#include "my_robot_interfaces/msg/detected_object_array.hpp"
+#include "my_robot_interfaces/msg/detected_object_pcl_array.hpp"
 
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 
@@ -37,13 +37,13 @@ public:
 
 private:
     void detectedObjectsCallback(
-        const my_robot_interfaces::msg::DetectedObjectArray::SharedPtr msg);
+        const my_robot_interfaces::msg::DetectedObjectPCLArray::SharedPtr msg);
 
     moveit::planning_interface::PlanningSceneInterface
         planning_scene_interface_;
 
     rclcpp::Subscription<
-        my_robot_interfaces::msg::DetectedObjectArray>::SharedPtr
+        my_robot_interfaces::msg::DetectedObjectPCLArray>::SharedPtr
         detected_objects_sub_;
 
     // 上一帧已经加入 Planning Scene 的物体 ID
