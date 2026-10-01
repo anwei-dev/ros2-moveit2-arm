@@ -51,7 +51,7 @@ public:
 
     stabilizer_(
       declare_parameter<double>(
-        "required_stable_time", 5.0))
+        "required_stable_time", 0.0))
   {
     tf_buffer_.setCreateTimerInterface(
       std::make_shared<tf2_ros::CreateTimerROS>(
