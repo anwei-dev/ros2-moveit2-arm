@@ -63,6 +63,11 @@ target_link_libraries(point_cloud_processor_node
 )
 
 install(
+  DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}
+)
+
+install(
   TARGETS 
     point_cloud_processor_node
     object_detection_node
