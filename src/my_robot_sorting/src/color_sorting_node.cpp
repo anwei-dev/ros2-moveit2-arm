@@ -73,7 +73,7 @@ ColorSortingNode::ColorSortingNode()
     declare_parameter("cartesian_wait_sec", 3.0);
 
   const double gripper_wait_sec =
-    declare_parameter("gripper_wait_sec", 1.0);
+    declare_parameter("gripper_wait_sec", 0.7);
 
   wait_for_stable_detections_ =
     declare_parameter(
@@ -150,7 +150,7 @@ void ColorSortingNode::tryStartSequence(
     RCLCPP_WARN_THROTTLE(
       get_logger(),
       *get_clock(),
-      2000,
+      5000,
       "No valid grasp/target pair found in /detected_objects");
 
     return;
