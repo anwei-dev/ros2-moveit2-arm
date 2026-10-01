@@ -8,6 +8,7 @@
 #include <example_interfaces/msg/bool.hpp>
 #include <my_robot_interfaces/msg/detected_object.hpp>
 #include <my_robot_interfaces/msg/detected_object_array.hpp>
+#include <std_srvs/srv/trigger.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <rclcpp_action/rclcpp_action.hpp>
@@ -16,6 +17,7 @@
 using namespace std::chrono_literals;
 using MoveToPose = my_robot_interfaces::action::MoveToPose;
 using GoalHandleMoveToPose = rclcpp_action::ClientGoalHandle<MoveToPose>;
+using Trigger = std_srvs::srv::Trigger;
 
 class ColorSortingNode : public rclcpp::Node
 {
@@ -26,6 +28,8 @@ public:
     move_to_pose_client_ =
         rclcpp_action::create_client<MoveToPose>(this, "move_to_pose");
     gripper_pub_ = create_publisher<example_interfaces::msg::Bool>("open_gripper", 10);
+    update_planning_scene_client_ =
+        create_client<Trigger>("/update_planning_scene");
 
     object_sub_ = create_subscription<my_robot_interfaces::msg::DetectedObjectArray>(
         "/detected_objects", 10,
@@ -365,6 +369,51 @@ private:
     step_timer_->cancel();
   }
 
+  void updatePlanningScene()
+  {
+    if (!update_planning_scene_client_->service_is_ready())
+    {
+      RCLCPP_WARN(
+          get_logger(),
+          "Planning Scene update service '/update_planning_scene' is not available");
+      return;
+    }
+
+    auto request = std::make_shared<Trigger::Request>();
+
+    update_planning_scene_client_->async_send_request(
+        request,
+        [this](rclcpp::Client<Trigger>::SharedFuture future)
+        {
+          try
+          {
+            const auto response = future.get();
+
+            if (response->success)
+            {
+              RCLCPP_INFO(
+                  get_logger(),
+                  "Planning Scene update succeeded: %s",
+                  response->message.c_str());
+            }
+            else
+            {
+              RCLCPP_WARN(
+                  get_logger(),
+                  "Planning Scene update failed: %s",
+                  response->message.c_str());
+            }
+          }
+          catch (const std::exception &e)
+          {
+            RCLCPP_ERROR(
+                get_logger(),
+                "Exception while updating Planning Scene: %s",
+                e.what());
+          }
+        });
+  }
+
   void runNextStep()
   {
     if (!sequence_started_)
@@ -384,7 +433,11 @@ private:
 
     if (current_step_index_ >= steps_.size())
     {
-      RCLCPP_INFO(get_logger(), "Sorting sequence completed");
+      RCLCPP_INFO(
+          get_logger(),
+          "Sorting sequence completed, requesting Planning Scene update");
+
+      updatePlanningScene();
 
       sequence_started_ = false;
       step_timer_->cancel();
@@ -420,6 +473,7 @@ private:
   }
 
   rclcpp_action::Client<MoveToPose>::SharedPtr move_to_pose_client_;
+  rclcpp::Client<Trigger>::SharedPtr update_planning_scene_client_;
   rclcpp::Publisher<example_interfaces::msg::Bool>::SharedPtr gripper_pub_;
   rclcpp::Subscription<my_robot_interfaces::msg::DetectedObjectArray>::SharedPtr object_sub_;
   rclcpp::TimerBase::SharedPtr step_timer_;

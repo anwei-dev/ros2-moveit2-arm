@@ -10,7 +10,7 @@ find_package(example_interfaces REQUIRED)
 find_package(my_robot_interfaces REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
-
+find_package(std_srvs REQUIRED)
 
 add_executable(color_sorting_node
   src/color_sorting_node.cpp
@@ -21,6 +21,7 @@ ament_target_dependencies(color_sorting_node
   my_robot_interfaces
   rclcpp_action
   rclcpp
+  std_srvs
 )
 
 install(TARGETS
