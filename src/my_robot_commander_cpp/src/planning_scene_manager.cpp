@@ -11,6 +11,8 @@
 PlanningSceneManager::PlanningSceneManager()
 : Node("planning_scene_manager")
 {
+    // 接收视觉检测结果
+    // 注意：这里只保存最新数据，不立即修改 Planning Scene
     detected_objects_sub_ =
         this->create_subscription<
             my_robot_interfaces::msg::DetectedObjectPCLArray>(
@@ -20,15 +22,56 @@ PlanningSceneManager::PlanningSceneManager()
                 &PlanningSceneManager::detectedObjectsCallback,
                 this,
                 std::placeholders::_1));
+
+    // 创建更新 Planning Scene 的 Service
+    update_scene_service_ =
+        this->create_service<std_srvs::srv::Trigger>(
+            "/update_planning_scene",
+            std::bind(
+                &PlanningSceneManager::updatePlanningSceneCallback,
+                this,
+                std::placeholders::_1,
+                std::placeholders::_2));
+
+    RCLCPP_INFO(
+        this->get_logger(),
+        "Planning Scene Manager started");
+
+    RCLCPP_INFO(
+        this->get_logger(),
+        "Waiting for /update_planning_scene request");
 }
 
 void PlanningSceneManager::detectedObjectsCallback(
     const my_robot_interfaces::msg::DetectedObjectPCLArray::SharedPtr msg)
 {
-    // 当前这一帧检测到的所有物体 ID
+    // 只保存最新一帧检测结果
+    latest_detected_objects_ = *msg;
+}
+
+void PlanningSceneManager::updatePlanningSceneCallback(
+    const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
+    std::shared_ptr<std_srvs::srv::Trigger::Response> response)
+{
+    (void)request;
+
+    RCLCPP_INFO(
+        this->get_logger(),
+        "Received request to update Planning Scene");
+
+    // 根据最新视觉结果更新 Planning Scene
+    updatePlanningScene();
+
+    response->success = true;
+    response->message = "Planning Scene updated successfully";
+}
+
+void PlanningSceneManager::updatePlanningScene()
+{
+    // 当前这一轮检测到的所有物体 ID
     std::set<std::string> detected_object_ids;
 
-    for (const auto& object : msg->objects)
+    for (const auto& object : latest_detected_objects_.objects)
     {
         const std::string object_id =
             std::to_string(object.id);
@@ -41,13 +84,12 @@ void PlanningSceneManager::detectedObjectsCallback(
         const double center_y = object.center.y;
         const double center_z = object.center.z;
 
-        // DetectedObjectPCL 中的 dimensions
-        // 直接作为碰撞 Box 的尺寸
+        // dimensions 直接作为 Box 尺寸
         const double size_x = object.dimensions.x;
         const double size_y = object.dimensions.y;
         const double size_z = object.dimensions.z;
 
-        // 如果上一帧没有这个物体，说明是新出现的物体
+        // 如果 Planning Scene 中还没有这个物体
         if (current_object_ids_.find(object_id) ==
             current_object_ids_.end())
         {
@@ -62,7 +104,7 @@ void PlanningSceneManager::detectedObjectsCallback(
         }
         else
         {
-            // 已经存在，更新其位置和尺寸
+            // 已经存在，更新位置和尺寸
             updateBox(
                 object_id,
                 center_x,
@@ -74,7 +116,7 @@ void PlanningSceneManager::detectedObjectsCallback(
         }
     }
 
-    // 检查上一帧存在、这一帧已经消失的物体
+    // 检查之前存在、现在已经消失的物体
     for (const auto& old_id : current_object_ids_)
     {
         if (detected_object_ids.find(old_id) ==
@@ -84,8 +126,13 @@ void PlanningSceneManager::detectedObjectsCallback(
         }
     }
 
-    // 保存当前帧的物体 ID，供下一帧比较
+    // 保存这一次真正写入 Planning Scene 的物体 ID
     current_object_ids_ = detected_object_ids;
+
+    RCLCPP_INFO(
+        this->get_logger(),
+        "Planning Scene update finished, %zu objects",
+        detected_object_ids.size());
 }
 
 void PlanningSceneManager::addBox(
@@ -104,7 +151,9 @@ void PlanningSceneManager::addBox(
 
     shape_msgs::msg::SolidPrimitive primitive;
 
-    primitive.type = shape_msgs::msg::SolidPrimitive::BOX;
+    primitive.type =
+        shape_msgs::msg::SolidPrimitive::BOX;
+
     primitive.dimensions.resize(3);
 
     primitive.dimensions[
