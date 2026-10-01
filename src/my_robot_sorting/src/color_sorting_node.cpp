@@ -104,7 +104,7 @@ ColorSortingNode::ColorSortingNode()
 
   step_timer_ =
     create_wall_timer(
-      100ms,
+      10ms,
       std::bind(
         &ColorSortingNode::runNextStep,
         this));
