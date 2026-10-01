@@ -35,6 +35,7 @@ add_executable(point_cloud_processor_node
 add_executable(object_detection_node
   src/object_detection_node.cpp
   src/object_detector.cpp
+  src/object_classifier.cpp
 )
 
 ament_target_dependencies(object_detection_node

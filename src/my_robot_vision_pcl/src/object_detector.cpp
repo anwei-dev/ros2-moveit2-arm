@@ -177,6 +177,10 @@ std::vector<ClusterInfo> ObjectDetector::detect(
     info.size_z =
       static_cast<double>(max_point.z - min_point.z);
 
+    // color
+
+    info.color = classifier_.classifyColor(cluster);
+
     results.push_back(info);
   }
 

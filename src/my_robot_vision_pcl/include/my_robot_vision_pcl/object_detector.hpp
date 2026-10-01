@@ -3,13 +3,17 @@
 
 #include <cstddef>
 #include <vector>
+#include <string>
 
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
+#include "my_robot_vision_pcl/object_classifier.hpp"
 
 struct ClusterInfo
 {
   std::size_t point_count;
+
+  std::string color;
 
   double center_x;
   double center_y;
@@ -38,6 +42,7 @@ private:
   double cluster_tolerance_;
   int min_cluster_size_;
   int max_cluster_size_;
+  ObjectClassifier classifier_;
 };
 
 #endif

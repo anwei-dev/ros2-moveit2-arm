@@ -121,8 +121,7 @@ private:
       object.id =
         static_cast<uint32_t>(i);
 
-      // 颜色暂时不处理
-      object.color = "";
+      object.color = cluster.color;
 
       object.center.x = cluster.center_x;
       object.center.y = cluster.center_y;
