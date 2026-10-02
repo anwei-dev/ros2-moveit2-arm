@@ -4,9 +4,10 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /MarkerArray1
+        - /MotionPlanning1/Planning Request1
+        - /MotionPlanning1/Planned Path1
       Splitter Ratio: 0.5
-    Tree Height: 710
+    Tree Height: 244
   - Class: rviz_common/Help
     Name: Help
   - Class: rviz_common/Views
@@ -162,7 +163,7 @@ Visualization Manager:
         Interactive Marker Size: 0
         Joint Violation Color: 255; 0; 255
         Planning Group: arm
-        Query Goal State: true
+        Query Goal State: false
         Query Start State: false
         Show Workspace: false
         Start State Alpha: 1
@@ -273,7 +274,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: RGB8
       Decay Time: 0
-      Enabled: false
+      Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 4096
@@ -294,7 +295,7 @@ Visualization Manager:
         Value: /camera_link/points
       Use Fixed Frame: true
       Use rainbow: true
-      Value: false
+      Value: true
     - Class: rviz_default_plugins/Camera
       Enabled: false
       Far Plane Distance: 100
@@ -309,9 +310,9 @@ Visualization Manager:
         Value: /camera_link/image_raw
       Value: false
       Visibility:
-        "": true
         Grid: true
         Marker: true
+        MarkerArray: true
         MotionPlanning: true
         PointCloud2: true
         TF: true
@@ -348,7 +349,8 @@ Visualization Manager:
       Enabled: true
       Name: MarkerArray
       Namespaces:
-        {}
+        detected_objects_center: true
+        detected_objects_text: false
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -374,25 +376,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 3.828366756439209
+      Distance: 2.9646873474121094
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.3353232443332672
-        Y: 0.3341951072216034
-        Z: 0.7500982880592346
+        X: 0.33292651176452637
+        Y: -0.07003825157880783
+        Z: 0.4209171533584595
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.3103429079055786
+      Pitch: 0.40534281730651855
       Target Frame: base_link
       Value: Orbit (rviz_default_plugins)
-      Yaw: 5.7060723304748535
+      Yaw: 5.731071472167969
     Saved: ~
 Window Geometry:
   Camera:
@@ -408,7 +410,7 @@ Window Geometry:
     collapsed: false
   MotionPlanning - Trajectory Slider:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd0000000100000000000002b400000349fc0200000007fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000004100fffffffb000000100044006900730070006c006100790073010000003d00000349000000c900fffffffb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e00670000000151000001880000017d00fffffffb0000000800480065006c0070000000029a0000006e0000006e00fffffffb0000000a0056006900650077007300000002470000013f000000a400fffffffb0000000c00430061006d00650072006100000002c0000000c60000002800fffffffb0000000c00430061006d00650072006100000002c0000000c60000000000000000000003ec0000034900000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000100000000000002b400000349fc0200000007fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000001600000016fb000000100044006900730070006c006100790073010000003d00000177000000c900fffffffb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e006701000001ba000001cc0000017d00fffffffb0000000800480065006c0070000000029a0000006e0000006e00fffffffb0000000a0056006900650077007300000002470000013f000000a400fffffffb0000000c00430061006d00650072006100000002fc0000008a0000002800fffffffb0000000c00430061006d00650072006100000002c0000000c60000000000000000000003ec0000034900000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Views:
     collapsed: false
   Width: 1702

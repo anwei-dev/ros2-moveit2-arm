@@ -26,7 +26,8 @@ public:
         double size_y,
         double size_z);
 
-    void removeObject(const std::string& id);
+    void removeObject(
+        const std::string& id);
 
     void updateBox(
         const std::string& id,
@@ -38,16 +39,22 @@ public:
         double size_z);
 
 private:
-    // 接收视觉检测结果，只保存最新数据
+    // 接收视觉检测结果
+    // 连续稳定 3 帧后保存为稳定检测结果
     void detectedObjectsCallback(
         const my_robot_interfaces::msg::DetectedObjectPCLArray::SharedPtr msg);
+
+    // 判断两帧检测结果是否相同
+    bool isSameDetection(
+        const my_robot_interfaces::msg::DetectedObjectPCLArray& a,
+        const my_robot_interfaces::msg::DetectedObjectPCLArray& b);
 
     // /update_planning_scene Service 回调
     void updatePlanningSceneCallback(
         const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
         std::shared_ptr<std_srvs::srv::Trigger::Response> response);
 
-    // 根据最新视觉结果更新 Planning Scene
+    // 根据稳定的视觉结果更新 Planning Scene
     void updatePlanningScene();
 
     moveit::planning_interface::PlanningSceneInterface
@@ -62,9 +69,23 @@ private:
     rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr
         update_scene_service_;
 
-    // 保存最新一帧视觉检测结果
+    // 最新一帧视觉检测结果
     my_robot_interfaces::msg::DetectedObjectPCLArray
         latest_detected_objects_;
+
+    // 上一帧视觉检测结果
+    my_robot_interfaces::msg::DetectedObjectPCLArray
+        previous_detected_objects_;
+
+    // 连续稳定的检测结果
+    my_robot_interfaces::msg::DetectedObjectPCLArray
+        stable_detected_objects_;
+
+    // 当前连续稳定帧数
+    int stable_frame_count_ = 0;
+
+    // 是否已经获得稳定检测结果
+    bool has_stable_detection_ = false;
 
     // 当前已经存在于 Planning Scene 中的物体 ID
     std::set<std::string> current_object_ids_;
