@@ -171,6 +171,13 @@ void ColorSortingNode::tryStartSequence(
   sequence_started_ = true;
   current_step_index_ = 0;
 
+  RCLCPP_INFO(
+      get_logger(),
+      "Starting sorting sequence, "
+      "requesting Planning Scene update");
+
+  updatePlanningScene();
+
   next_step_ready_time_ = now();
 
   step_timer_->reset();
@@ -387,11 +394,8 @@ void ColorSortingNode::runNextStep()
   if (current_step_index_ >= steps_.size())
   {
     RCLCPP_INFO(
-      get_logger(),
-      "Sorting sequence completed, "
-      "requesting Planning Scene update");
-
-    updatePlanningScene();
+        get_logger(),
+        "Sorting sequence completed");
 
     sequence_started_ = false;
     step_timer_->cancel();
