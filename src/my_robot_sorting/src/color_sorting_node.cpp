@@ -178,7 +178,7 @@ void ColorSortingNode::tryStartSequence(
 
   updatePlanningScene();
 
-  next_step_ready_time_ = now();
+  next_step_ready_time_ = now()+ rclcpp::Duration::from_seconds(0.5);
 
   step_timer_->reset();
 
