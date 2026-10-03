@@ -216,7 +216,7 @@ std::vector<my_robot_sorting::Step> TaskPlanner::buildSequence(
     makePoseStep(
       end_x_,
       end_y_,
-      retreat_height_,
+      retreat_height_ + 0.3,
       false,
       pose_wait_sec_,
       "move to end pose"));

@@ -21,8 +21,10 @@ public:
 
 private:
   using MoveToPose = my_robot_interfaces::action::MoveToPose;
+
   using GoalHandleMoveToPose =
     rclcpp_action::ClientGoalHandle<MoveToPose>;
+
   using Trigger = std_srvs::srv::Trigger;
 
   void objectsCallback(
@@ -34,7 +36,8 @@ private:
   void runNextStep();
 
   void sendPoseGoal(
-    const my_robot_sorting::Step &step);
+    const my_robot_sorting::Step &step,
+    bool use_cartesian);
 
   void goalResponseCallback(
     const GoalHandleMoveToPose::SharedPtr &goal_handle);
@@ -62,11 +65,14 @@ private:
     my_robot_interfaces::msg::DetectedObjectArray>::SharedPtr
     object_sub_;
 
-  rclcpp::TimerBase::SharedPtr step_timer_;
+  rclcpp::TimerBase::SharedPtr
+    step_timer_;
 
-  std::shared_ptr<TaskPlanner> task_planner_;
+  std::shared_ptr<TaskPlanner>
+    task_planner_;
 
-  std::vector<my_robot_sorting::Step> steps_;
+  std::vector<my_robot_sorting::Step>
+    steps_;
 
   bool sequence_started_{false};
   bool step_in_progress_{false};
@@ -78,6 +84,10 @@ private:
 
   bool wait_for_stable_detections_{true};
   int stable_detection_count_{3};
+
+  // 当前步骤是否已经进行过
+  // “笛卡尔路径失败 -> 普通规划” 的 fallback
+  bool cartesian_fallback_attempted_{false};
 };
 
 #endif  // MY_ROBOT_SORTING__COLOR_SORTING_NODE_HPP_

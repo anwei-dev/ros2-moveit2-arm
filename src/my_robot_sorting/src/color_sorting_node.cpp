@@ -55,7 +55,7 @@ ColorSortingNode::ColorSortingNode()
     declare_parameter("end_x", 0.0);
 
   const double end_y =
-    declare_parameter("end_y", 0.8);
+    declare_parameter("end_y", 0.7);
 
   const double roll =
     declare_parameter("roll", 3.14);
@@ -116,6 +116,7 @@ ColorSortingNode::ColorSortingNode()
     "Waiting for detected objects to generate a sorting sequence");
 }
 
+
 void ColorSortingNode::objectsCallback(
   const my_robot_interfaces::msg::DetectedObjectArray::SharedPtr msg)
 {
@@ -139,8 +140,9 @@ void ColorSortingNode::objectsCallback(
   }
 }
 
+
 void ColorSortingNode::tryStartSequence(
-  const my_robot_interfaces::msg::DetectedObjectArray &msg)
+  const my_robot_interfaces::msg::DetectedObjectArray & msg)
 {
   const auto task_plan =
     task_planner_->selectTask(msg);
@@ -171,14 +173,19 @@ void ColorSortingNode::tryStartSequence(
   sequence_started_ = true;
   current_step_index_ = 0;
 
+  // 新 sequence 开始时清除 fallback 状态
+  cartesian_fallback_attempted_ = false;
+
   RCLCPP_INFO(
-      get_logger(),
-      "Starting sorting sequence, "
-      "requesting Planning Scene update");
+    get_logger(),
+    "Starting sorting sequence, "
+    "requesting Planning Scene update");
 
   updatePlanningScene();
 
-  next_step_ready_time_ = now()+ rclcpp::Duration::from_seconds(0.5);
+  next_step_ready_time_ =
+    now() +
+    rclcpp::Duration::from_seconds(0.5);
 
   step_timer_->reset();
 
@@ -192,8 +199,10 @@ void ColorSortingNode::tryStartSequence(
     task_plan->target.color.c_str());
 }
 
+
 void ColorSortingNode::sendPoseGoal(
-  const my_robot_sorting::Step &step)
+  const my_robot_sorting::Step & step,
+  bool use_cartesian)
 {
   if (!move_to_pose_client_->wait_for_action_server(1s))
   {
@@ -217,7 +226,7 @@ void ColorSortingNode::sendPoseGoal(
   goal.pitch = step.pitch;
   goal.yaw = step.yaw;
 
-  goal.cartesian_path = step.cartesian_path;
+  goal.cartesian_path = use_cartesian;
 
   RCLCPP_INFO(
     get_logger(),
@@ -229,7 +238,7 @@ void ColorSortingNode::sendPoseGoal(
     step.x,
     step.y,
     step.z,
-    step.cartesian_path ? "true" : "false");
+    use_cartesian ? "true" : "false");
 
   step_in_progress_ = true;
 
@@ -259,8 +268,9 @@ void ColorSortingNode::sendPoseGoal(
     options);
 }
 
+
 void ColorSortingNode::goalResponseCallback(
-  const GoalHandleMoveToPose::SharedPtr &goal_handle)
+  const GoalHandleMoveToPose::SharedPtr & goal_handle)
 {
   if (!goal_handle)
   {
@@ -280,6 +290,7 @@ void ColorSortingNode::goalResponseCallback(
     "MoveToPose goal accepted by the action server");
 }
 
+
 void ColorSortingNode::feedbackCallback(
   GoalHandleMoveToPose::SharedPtr,
   const std::shared_ptr<const MoveToPose::Feedback> feedback)
@@ -291,10 +302,15 @@ void ColorSortingNode::feedbackCallback(
     feedback->progress);
 }
 
+
 void ColorSortingNode::resultCallback(
-  const GoalHandleMoveToPose::WrappedResult &result)
+  const GoalHandleMoveToPose::WrappedResult & result)
 {
   step_in_progress_ = false;
+
+  // ============================================================
+  // 1. 当前 MoveToPose 执行成功
+  // ============================================================
 
   if (result.code ==
       rclcpp_action::ResultCode::SUCCEEDED &&
@@ -307,11 +323,64 @@ void ColorSortingNode::resultCallback(
 
     ++current_step_index_;
 
+    // 当前 step 成功后，进入下一个 step
+    // 同时清除当前 step 的 fallback 状态
+    cartesian_fallback_attempted_ = false;
+
     next_step_ready_time_ =
-      now() + rclcpp::Duration::from_seconds(0.0);
+      now() +
+      rclcpp::Duration::from_seconds(0.0);
 
     return;
   }
+
+  // ============================================================
+  // 2. 当前 MoveToPose 执行失败
+  // ============================================================
+
+  const auto & step =
+    steps_[current_step_index_];
+
+  // ============================================================
+  // 3. 如果当前 step 原本使用笛卡尔路径
+  //    并且还没有进行过 fallback
+  //    -> 改成普通规划重新执行一次
+  // ============================================================
+
+  if (step.cartesian_path &&
+      !cartesian_fallback_attempted_)
+  {
+    cartesian_fallback_attempted_ = true;
+
+    RCLCPP_WARN(
+      get_logger(),
+      "Cartesian path failed for step %zu/%zu. "
+      "Retrying with non-Cartesian planning.",
+      current_step_index_ + 1,
+      steps_.size());
+
+    RCLCPP_WARN(
+      get_logger(),
+      "Original error: result_code=%d, "
+      "success=%s, error_code=%d",
+      static_cast<int>(result.code),
+      result.result->success ? "true" : "false",
+      result.result->error_code);
+
+    // 同一个目标重新执行
+    // 但是强制使用普通规划
+    sendPoseGoal(
+      step,
+      false);
+
+    return;
+  }
+
+  // ============================================================
+  // 4. 普通规划也失败
+  //    或者当前 step 本来就不是笛卡尔路径
+  //    -> sequence 失败
+  // ============================================================
 
   RCLCPP_ERROR(
     get_logger(),
@@ -324,6 +393,7 @@ void ColorSortingNode::resultCallback(
   sequence_started_ = false;
   step_timer_->cancel();
 }
+
 
 void ColorSortingNode::updatePlanningScene()
 {
@@ -364,7 +434,7 @@ void ColorSortingNode::updatePlanningScene()
             response->message.c_str());
         }
       }
-      catch (const std::exception &e)
+      catch (const std::exception & e)
       {
         RCLCPP_ERROR(
           get_logger(),
@@ -373,6 +443,7 @@ void ColorSortingNode::updatePlanningScene()
       }
     });
 }
+
 
 void ColorSortingNode::runNextStep()
 {
@@ -391,11 +462,15 @@ void ColorSortingNode::runNextStep()
     return;
   }
 
+  // ============================================================
+  // sequence 已经完成
+  // ============================================================
+
   if (current_step_index_ >= steps_.size())
   {
     RCLCPP_INFO(
-        get_logger(),
-        "Sorting sequence completed");
+      get_logger(),
+      "Sorting sequence completed");
 
     sequence_started_ = false;
     step_timer_->cancel();
@@ -403,15 +478,34 @@ void ColorSortingNode::runNextStep()
     return;
   }
 
-  const auto &step =
+  const auto & step =
     steps_[current_step_index_];
+
+  // ============================================================
+  // Pose step
+  // ============================================================
 
   if (step.type ==
       my_robot_sorting::Step::Type::kPose)
   {
-    sendPoseGoal(step);
+    // 使用 Step 中定义的规划方式
+    //
+    // 如果 step.cartesian_path == true
+    //     -> 使用笛卡尔路径
+    //
+    // 如果 step.cartesian_path == false
+    //     -> 使用普通规划
+
+    sendPoseGoal(
+      step,
+      step.cartesian_path);
+
     return;
   }
+
+  // ============================================================
+  // Gripper step
+  // ============================================================
 
   example_interfaces::msg::Bool command;
 

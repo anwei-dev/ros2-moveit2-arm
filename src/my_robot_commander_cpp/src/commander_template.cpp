@@ -43,10 +43,7 @@ public:
 
         joint_cmd_sub_ = node_->create_subscription<FloatArray>(
             "joint_command", 10, std::bind(&Commander::jointCmdCallback, this, _1));
-
-        // pose_cmd_sub_ = node_->create_subscription<PoseCmd>(
-        //     "pose_command", 10, std::bind(&Commander::poseCmdCallback, this, _1));
-        // 改成 action
+            
         move_to_pose_action_server_ = rclcpp_action::create_server<MoveToPose>(
             node_,
             "move_to_pose",
